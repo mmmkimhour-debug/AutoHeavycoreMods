@@ -24,7 +24,7 @@ public class ExampleMod implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // ចុះឈ្មោះ Keybind អក្សរ G លើ Keyboard
+        // បង្កើត Keybind អក្សរ G
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.autocore.toggle",
             InputUtil.Type.KEYSYM,
@@ -32,11 +32,10 @@ public class ExampleMod implements ClientModInitializer {
             "category.autocore"
         ));
 
-        // Event រត់រៀងរាល់ Tick ក្នុង Client
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null || client.world == null) return;
 
-            // ចុច [G] ម្ដងបើក ចុច [G] ម្ដងទៀតបិទ
+            // ចុច [G] ម្ដងបើក ➔ ចុច [G] ម្ដងទៀតបិទ
             while (toggleKey.wasPressed()) {
                 isAutoScanning = !isAutoScanning;
                 if (isAutoScanning) {
@@ -46,7 +45,7 @@ public class ExampleMod implements ClientModInitializer {
                 }
             }
 
-            // ប្រសិនបើបើក Scanner វានឹងស្កេនរៀងរាល់ 10 Ticks (0.5 វិនាទី)
+            // បើកស្កេនរៀងរាល់ 10 Ticks (0.5 វិនាទី)
             if (isAutoScanning) {
                 tickCounter++;
                 if (tickCounter >= 10) { 
@@ -59,7 +58,7 @@ public class ExampleMod implements ClientModInitializer {
 
     private void scanAndUnlockVault(net.minecraft.client.MinecraftClient client) {
         BlockPos playerPos = client.player.getBlockPos();
-        int radius = 5; // កាំនៃការស្កេន ៥ Blocks ជុំវិញខ្លួន
+        int radius = 5;
 
         for (BlockPos pos : BlockPos.iterate(playerPos.add(-radius, -radius, -radius), playerPos.add(radius, radius, radius))) {
             if (client.world.getBlockState(pos).isOf(Blocks.VAULT)) {
@@ -68,12 +67,11 @@ public class ExampleMod implements ClientModInitializer {
                 if (blockEntity instanceof VaultBlockEntity vault) {
                     var displayItem = vault.getClientData().getDisplayItem();
 
-                    // ស្កេនរកមើល Vault ណាដែលបង្ហាញរូប Heavy Core
                     if (displayItem != null && displayItem.isOf(Items.HEAVY_CORE)) {
                         BlockHitResult hitResult = new BlockHitResult(Vec3d.ofCenter(pos), Direction.UP, pos, false);
                         
                         if (client.interactionManager != null) {
-                            // ចាក់យក Item ដោយស្វ័យប្រវត្តិ (នៅតែបន្តបើក Scanner ដដែលរហូតដល់ចុច G បិទ)
+                            // ចាក់យក Heavy Core ដោយស្វ័យប្រវត្តិ (នៅតែបន្តបើក Scanner រហូតដល់ចុច G បិទដោយខ្លួនឯង)
                             client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, hitResult);
                             client.player.sendMessage(Text.literal("§a[AutoCore] កំពុងចាក់ Vault ដែលមាន Heavy Core!"), true);
                             break;
